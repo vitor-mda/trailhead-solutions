@@ -1,0 +1,15 @@
+trigger OpportunityChangeTrigger on OpportunityChangeEvent (after insert) {
+	List<Task> tasks = new List<Task>();
+    
+    for (OpportunityChangeEvent e : Trigger.new) {
+        EventBus.ChangeEventHeader header = e.ChangeEventHeader;
+        if (header.changeType == 'UPDATE' && e.IsWon == true) {
+            tasks.add(new Task(Subject = 'Follow up on won opportunities: ' + header.recordIds,
+                              OwnerId = header.commitUser));
+        }
+    }
+    
+    if (tasks.size() > 0) {
+        insert tasks;
+    }
+}
