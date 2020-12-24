@@ -3,7 +3,7 @@
 ---
 
 - ### Objective
-This repository main objective is to safekeep and showcase most code written by me to solve Trailhead modules, projects and superbadges.
+This repository objective is to safekeep and showcase most code written by me to solve Trailhead modules, projects and superbadges.
 
 **IN NO WAY I SUPPORT CHEATING!** Please, if you are having trouble solving any Trailhead challenge, ask the community for help.
 Don't copy and paste other people's code. 😉
