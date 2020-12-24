@@ -1,0 +1,32 @@
+trigger BearAlertTopicAssignmentTrigger on TopicAssignment (after insert) {
+	Set<Id> feedIds = new Set<Id>();
+    Map<Id, FeedItem> feedItems;
+    List<String> messages = new List<String>();
+    List<Notification__e> notifications = new List<Notification__e>();
+    List<Database.SaveResult> results;
+    
+    for (TopicAssignment ta : Trigger.new) {
+        if (ta.EntityId.getSObjectType().getDescribe().getName().equals('FeedItem')) {
+            feedIds.add(ta.EntityId);
+        }
+    }
+    feedItems = new Map<Id, FeedItem>([SELECT Body FROM FeedItem WHERE Id IN :feedIds]);
+    
+    for (TopicAssignment ta : [SELECT Id, EntityId, Topic.Name
+                               FROM TopicAssignment WHERE Id IN :Trigger.new AND Topic.Name = 'BearAlert']) {
+        messages.add(feedItems.get(ta.EntityId).body.stripHtmlTags().abbreviate(255));
+    }
+    
+    for (String m : messages) {
+        notifications.add(new Notification__e(Message__c = m));
+    }
+    results = EventBus.publish(notifications);
+    
+    for (Database.SaveResult sr : results) {
+        if (!sr.isSuccess()) {
+            for (Database.Error e : sr.getErrors()) {
+                System.debug('Error returned: ' + e.getStatusCode() +  ' - ' + e.getMessage());
+            }
+        }
+    }
+}
